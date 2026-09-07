@@ -34,20 +34,44 @@
         { id: "silverstripe", label: "Silverstripe" },
         { id: "kibana", label: "Kibana" },
         { id: "grafana", label: "Grafana" },
+        { id: "prometheus", label: "Prometheus" },
         { id: "elasticsearch", label: "Elasticsearch" },
         { id: "jenkins", label: "Jenkins" },
         { id: "kafka", label: "Kafka UI" },
+        { id: "filebrowser", label: "Filebrowser" },
+        { id: "pgadmin", label: "pgAdmin" },
+        { id: "sonarqube", label: "SonarQube" },
+        { id: "rabbitmq", label: "RabbitMQ" },
+        { id: "redis", label: "Redis" },
+        { id: "kiali", label: "Kiali" },
+        { id: "kubecost", label: "Kubecost" },
+        { id: "superset", label: "Superset" },
         { id: "gitlab", label: "GitLab" },
         { id: "gitea", label: "Gitea" },
         { id: "gogs", label: "Gogs" },
+        { id: "keycloak", label: "Keycloak" },
+        { id: "rancher", label: "Rancher" },
+        { id: "argocd", label: "Argo CD" },
+        { id: "eureka", label: "Eureka" },
+        { id: "harbor", label: "Harbor" },
+        { id: "minio", label: "MinIO" },
+        { id: "nexus", label: "Nexus" },
+        { id: "jfrog", label: "JFrog" },
+        { id: "strapi", label: "Strapi" },
+        { id: "cloudbeaver", label: "CloudBeaver" },
+        { id: "dbeaver", label: "DBeaver" },
+        { id: "uipath", label: "UiPath" },
         { id: "oracle", label: "Oracle" },
         { id: "tomcat", label: "Tomcat" },
+        { id: "wildfly", label: "WildFly" },
+        { id: "sharepoint", label: "SharePoint" },
         { id: "iis", label: "IIS" },
         { id: "nginx", label: "nginx" },
         { id: "apache", label: "Apache" },
         { id: "aspnet", label: "Microsoft ASP.NET" },
         { id: "php", label: "PHP" },
         { id: "nodejs", label: "Node.js" },
+        { id: "craftercms", label: "CrafterCMS" },
         { id: "java", label: "Java" }
     ];
     var STATUS_PORT_DEFAULT = 17322;
@@ -299,14 +323,42 @@
         if (softLc.indexOf("grafana") === 0) {
             return "-tags grafana -c 5 -rl 25";
         }
+        if (softLc.indexOf("prometheus") === 0) {
+            return "-tags prometheus -c 5 -rl 25";
+        }
         if (softLc.indexOf("elasticsearch") === 0) {
             return "-tags elasticsearch -c 5 -rl 25";
         }
         if (softLc.indexOf("jenkins") === 0) {
             return "-tags jenkins -c 5 -rl 25";
         }
-        if (softLc.indexOf("kafka") === 0 || softLc.indexOf("kafbat") === 0) {
-            return "-tags kafka -c 5 -rl 25";
+        if (
+            softLc.indexOf("kafka") === 0 ||
+            softLc.indexOf("kafbat") === 0 ||
+            softLc.indexOf("akhq") === 0
+        ) {
+            return "-tags kafka,akhq -c 5 -rl 25";
+        }
+        if (softLc.indexOf("sonarqube") === 0) {
+            return "-tags sonarqube -c 5 -rl 25";
+        }
+        if (softLc.indexOf("rabbitmq") === 0) {
+            return "-tags rabbitmq -c 5 -rl 25";
+        }
+        if (softLc.indexOf("redis") === 0) {
+            return "-tags redis -c 5 -rl 25";
+        }
+        if (softLc.indexOf("kiali") === 0) {
+            return "-tags kiali -c 5 -rl 25";
+        }
+        if (softLc.indexOf("kubecost") === 0) {
+            return "-tags kubecost -c 5 -rl 25";
+        }
+        if (softLc.indexOf("superset") === 0) {
+            return "-tags superset -c 5 -rl 25";
+        }
+        if (softLc.indexOf("filebrowser") === 0) {
+            return "-tags filebrowser -c 5 -rl 25";
         }
         if (softLc.indexOf("gitlab") === 0) {
             return "-tags gitlab -c 5 -rl 25";
@@ -317,11 +369,53 @@
         if (softLc.indexOf("gogs") === 0) {
             return "-tags gogs -c 5 -rl 25";
         }
+        if (softLc.indexOf("keycloak") === 0) {
+            return "-tags keycloak -c 5 -rl 25";
+        }
+        if (softLc.indexOf("rancher") === 0) {
+            return "-tags rancher -c 5 -rl 25";
+        }
+        if (softLc.indexOf("argocd") === 0 || softLc === "argo" || softLc === "argocd") {
+            return "-tags argocd -c 5 -rl 25";
+        }
+        if (softLc.indexOf("eureka") === 0) {
+            return "-tags eureka -c 5 -rl 25";
+        }
+        if (softLc.indexOf("harbor") === 0) {
+            return "-tags harbor -c 5 -rl 25";
+        }
+        if (softLc.indexOf("minio") === 0) {
+            return "-tags minio -c 5 -rl 25";
+        }
+        if (softLc.indexOf("nexus") === 0 || softLc.indexOf("sonatype") === 0) {
+            return "-tags nexus -c 5 -rl 25";
+        }
+        if (softLc.indexOf("jfrog") === 0 || softLc.indexOf("artifactory") === 0) {
+            return "-tags jfrog,artifactory -c 5 -rl 25";
+        }
+        if (softLc.indexOf("strapi") === 0) {
+            return "-tags strapi -c 5 -rl 25";
+        }
+        if (softLc.indexOf("pgadmin") === 0) {
+            return "-tags pgadmin -c 5 -rl 25";
+        }
+        if (softLc.indexOf("uipath") === 0) {
+            return "-tags uipath -c 5 -rl 25";
+        }
+        if (softLc.indexOf("dbeaver") === 0) {
+            return "-tags dbeaver -c 5 -rl 25";
+        }
         if (softLc.indexOf("oracle") === 0) {
             return "-tags oracle -c 5 -rl 25";
         }
         if (softLc.indexOf("tomcat") === 0) {
             return "-tags tomcat -c 5 -rl 25";
+        }
+        if (softLc.indexOf("wildfly") === 0 || softLc.indexOf("jboss") === 0) {
+            return "-tags wildfly,jboss -c 5 -rl 25";
+        }
+        if (softLc.indexOf("sharepoint") === 0) {
+            return "-tags sharepoint -c 5 -rl 25";
         }
         if (softLc.indexOf("iis") === 0 || softLc.indexOf("microsoft-iis") === 0) {
             return "-tags iis -c 5 -rl 25";
@@ -340,6 +434,9 @@
         }
         if (softLc.indexOf("node") === 0) {
             return "-tags nodejs -c 5 -rl 25";
+        }
+        if (softLc.indexOf("crafter") === 0) {
+            return "-tags craftercms -c 5 -rl 25";
         }
         if (softLc === "java" || softLc.indexOf("java:") === 0) {
             return "-tags java -c 5 -rl 25";
@@ -386,6 +483,8 @@
             rel = "Service-Specific/Keycloak-Identity-Access-Management.txt";
         } else if (soft === "tomcat") {
             rel = "Web-Servers/Apache-Tomcat.txt";
+        } else if (soft === "wildfly" || soft === "jboss") {
+            rel = "Web-Servers/JBoss.txt";
         } else if (
             soft === "iis" ||
             soft === "aspnet" ||
@@ -611,14 +710,47 @@
         if (n === "grafana" || n.indexOf("grafana") === 0) {
             return "grafana";
         }
+        if (n === "prometheus" || n.indexOf("prometheus") === 0) {
+            return "prometheus";
+        }
         if (n === "elasticsearch" || n.indexOf("elasticsearch") === 0) {
             return "elasticsearch";
         }
         if (n === "jenkins" || n.indexOf("jenkins") === 0) {
             return "jenkins";
         }
-        if (n.indexOf("kafka") === 0 || n === "kafbat" || n.indexOf("kafbat") === 0) {
+        if (
+            n.indexOf("kafka") === 0 ||
+            n === "kafbat" ||
+            n.indexOf("kafbat") === 0 ||
+            n === "akhq" ||
+            n.indexOf("akhq") === 0
+        ) {
             return "kafka";
+        }
+        if (n === "filebrowser" || n.indexOf("filebrowser") >= 0) {
+            return "filebrowser";
+        }
+        if (n === "pgadmin" || n.indexOf("pgadmin") >= 0 || n === "pg-admin") {
+            return "pgadmin";
+        }
+        if (n === "sonarqube" || n.indexOf("sonarqube") === 0) {
+            return "sonarqube";
+        }
+        if (n === "rabbitmq" || n.indexOf("rabbitmq") === 0) {
+            return "rabbitmq";
+        }
+        if (n === "redis" || n.indexOf("redis") === 0) {
+            return "redis";
+        }
+        if (n === "kiali" || n.indexOf("kiali") === 0) {
+            return "kiali";
+        }
+        if (n === "kubecost" || n.indexOf("kubecost") === 0) {
+            return "kubecost";
+        }
+        if (n === "superset" || n.indexOf("superset") === 0) {
+            return "superset";
         }
         if (n === "gitlab" || n.indexOf("gitlab") === 0) {
             return "gitlab";
@@ -629,6 +761,51 @@
         if (n === "gogs" || n.indexOf("gogs") === 0) {
             return "gogs";
         }
+        if (n === "keycloak" || n.indexOf("keycloak") === 0) {
+            return "keycloak";
+        }
+        if (n === "rancher" || n.indexOf("rancher") === 0) {
+            return "rancher";
+        }
+        if (
+            n === "argocd" ||
+            n.indexOf("argocd") === 0 ||
+            n === "argo" ||
+            n === "argo-cd" ||
+            n.indexOf("argo-") === 0
+        ) {
+            return "argocd";
+        }
+        if (n === "eureka" || n.indexOf("eureka") === 0) {
+            return "eureka";
+        }
+        if (n === "harbor" || n.indexOf("harbor") === 0) {
+            return "harbor";
+        }
+        if (n === "minio" || n.indexOf("minio") === 0) {
+            return "minio";
+        }
+        if (n === "nexus" || n.indexOf("nexus") === 0 || n.indexOf("sonatype") === 0) {
+            return "nexus";
+        }
+        if (n === "jfrog" || n.indexOf("jfrog") === 0 || n.indexOf("artifactory") === 0) {
+            return "jfrog";
+        }
+        if (n === "strapi" || n.indexOf("strapi") === 0) {
+            return "strapi";
+        }
+        if (n === "cloudbeaver" || n.indexOf("cloudbeaver") === 0) {
+            return "cloudbeaver";
+        }
+        if (n === "dbeaver" || n.indexOf("dbeaver") === 0) {
+            return "dbeaver";
+        }
+        if (n === "pgadmin" || n.indexOf("pgadmin") >= 0 || n === "pg-admin") {
+            return "pgadmin";
+        }
+        if (n === "uipath" || n.indexOf("uipath") === 0) {
+            return "uipath";
+        }
         if (n === "oracle" || n.indexOf("oracle") === 0) {
             return "oracle";
         }
@@ -638,6 +815,16 @@
         }
         if (n.indexOf("tomcat") >= 0) {
             return "tomcat";
+        }
+        if (
+            n.indexOf("wildfly") === 0 ||
+            n === "jboss" ||
+            n.indexOf("jboss") === 0
+        ) {
+            return "wildfly";
+        }
+        if (n.indexOf("sharepoint") >= 0 || n === "microsoftsharepoint") {
+            return "sharepoint";
         }
         if (n === "iis" || n === "microsoft-iis" || n.indexOf("microsoft-iis") === 0) {
             return "iis";
@@ -656,6 +843,13 @@
         }
         if (n === "node.js" || n === "nodejs" || n === "node") {
             return "nodejs";
+        }
+        if (
+            n === "craftercms" ||
+            n.indexOf("craftercms") === 0 ||
+            n === "crafter"
+        ) {
+            return "craftercms";
         }
         // Exact "java" only — not javascript / JavaServer Pages.
         if (n === "java") {
@@ -799,10 +993,102 @@
             found.aspnet = "";
         }
         if (
-            (/\bkafka\b/.test(blobAll) || /\bkafbat\b/.test(blobAll) || /kafka-ui/.test(blobAll)) &&
+            (/\bkafka\b/.test(blobAll) ||
+                /\bkafbat\b/.test(blobAll) ||
+                /kafka-ui/.test(blobAll) ||
+                /\bakhq\b/.test(blobAll)) &&
             found.kafka === undefined
         ) {
             found.kafka = "";
+        }
+        if (/\bsonarqube\b/.test(blobAll) && found.sonarqube === undefined) {
+            found.sonarqube = "";
+        }
+        if (/\brabbitmq\b/.test(blobAll) && found.rabbitmq === undefined) {
+            found.rabbitmq = "";
+        }
+        if (/\bredis\b/.test(blobAll) && found.redis === undefined) {
+            found.redis = "";
+        }
+        if (/\bkiali\b/.test(blobAll) && found.kiali === undefined) {
+            found.kiali = "";
+        }
+        if (/\bkubecost\b/.test(blobAll) && found.kubecost === undefined) {
+            found.kubecost = "";
+        }
+        if (/\bsuperset\b/.test(blobAll) && found.superset === undefined) {
+            found.superset = "";
+        }
+        if (/\bfilebrowser\b/.test(blobAll) && found.filebrowser === undefined) {
+            found.filebrowser = "";
+        }
+        if (/\bkeycloak\b/.test(blobAll) && found.keycloak === undefined) {
+            found.keycloak = "";
+        }
+        if (/\brancher\b/.test(blobAll) && found.rancher === undefined) {
+            found.rancher = "";
+        }
+        if (
+            (/\bargo\s*cd\b/.test(blobAll) ||
+                /\bargocd\b/.test(blobAll) ||
+                /(^|[.-])argo-/.test(blobAll)) &&
+            found.argocd === undefined
+        ) {
+            found.argocd = "";
+        }
+        if (/\beureka\b/.test(blobAll) && found.eureka === undefined) {
+            found.eureka = "";
+        }
+        if (/\bprometheus\b/.test(blobAll) && found.prometheus === undefined) {
+            found.prometheus = "";
+        }
+        if (/\bharbor\b/.test(blobAll) && found.harbor === undefined) {
+            found.harbor = "";
+        }
+        if (/\bminio\b/.test(blobAll) && found.minio === undefined) {
+            found.minio = "";
+        }
+        if (
+            (/\bnexus\b/.test(blobAll) || /\bsonatype\b/.test(blobAll)) &&
+            found.nexus === undefined
+        ) {
+            found.nexus = "";
+        }
+        if (
+            (/\bjfrog\b/.test(blobAll) || /\bartifactory\b/.test(blobAll)) &&
+            found.jfrog === undefined
+        ) {
+            found.jfrog = "";
+        }
+        if (/\bstrapi\b/.test(blobAll) && found.strapi === undefined) {
+            found.strapi = "";
+        }
+        if (/\bcloudbeaver\b/.test(blobAll) && found.cloudbeaver === undefined) {
+            found.cloudbeaver = "";
+        }
+        if (/\bdbeaver\b/.test(blobAll) && found.dbeaver === undefined) {
+            found.dbeaver = "";
+        }
+        if (/\bpgadmin\b/.test(blobAll) && found.pgadmin === undefined) {
+            found.pgadmin = "";
+        }
+        if (/\buipath\b/.test(blobAll) && found.uipath === undefined) {
+            found.uipath = "";
+        }
+        if (
+            (/\bwildfly\b/.test(blobAll) || /\bjboss\b/.test(blobAll)) &&
+            found.wildfly === undefined
+        ) {
+            found.wildfly = "";
+        }
+        if (/\bsharepoint\b/.test(blobAll) && found.sharepoint === undefined) {
+            found.sharepoint = "";
+        }
+        if (
+            (/\bcraftercms\b/.test(blobAll) || /\bcrafter\s*cms\b/.test(blobAll)) &&
+            found.craftercms === undefined
+        ) {
+            found.craftercms = "";
         }
 
         for (i = 0; i < ROW_PRODUCT_PRIORITY.length; i++) {

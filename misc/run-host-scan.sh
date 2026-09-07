@@ -325,22 +325,66 @@ f_nuclei_args(){
         NUCLEI_EXTRA=(-tags kibana -c 5 -rl 25)
     elif [[ "$soft_lc" == grafana* ]]; then
         NUCLEI_EXTRA=(-tags grafana -c 5 -rl 25)
+    elif [[ "$soft_lc" == prometheus* ]]; then
+        NUCLEI_EXTRA=(-tags prometheus -c 5 -rl 25)
     elif [[ "$soft_lc" == elasticsearch* ]]; then
         NUCLEI_EXTRA=(-tags elasticsearch -c 5 -rl 25)
     elif [[ "$soft_lc" == jenkins* ]]; then
         NUCLEI_EXTRA=(-tags jenkins -c 5 -rl 25)
-    elif [[ "$soft_lc" == kafka* || "$soft_lc" == kafbat* ]]; then
-        NUCLEI_EXTRA=(-tags kafka -c 5 -rl 25)
+    elif [[ "$soft_lc" == kafka* || "$soft_lc" == kafbat* || "$soft_lc" == akhq* ]]; then
+        NUCLEI_EXTRA=(-tags kafka,akhq -c 5 -rl 25)
+    elif [[ "$soft_lc" == sonarqube* ]]; then
+        NUCLEI_EXTRA=(-tags sonarqube -c 5 -rl 25)
+    elif [[ "$soft_lc" == rabbitmq* ]]; then
+        NUCLEI_EXTRA=(-tags rabbitmq -c 5 -rl 25)
+    elif [[ "$soft_lc" == redis* ]]; then
+        NUCLEI_EXTRA=(-tags redis -c 5 -rl 25)
+    elif [[ "$soft_lc" == kiali* ]]; then
+        NUCLEI_EXTRA=(-tags kiali -c 5 -rl 25)
+    elif [[ "$soft_lc" == kubecost* ]]; then
+        NUCLEI_EXTRA=(-tags kubecost -c 5 -rl 25)
+    elif [[ "$soft_lc" == superset* ]]; then
+        NUCLEI_EXTRA=(-tags superset -c 5 -rl 25)
+    elif [[ "$soft_lc" == filebrowser* ]]; then
+        NUCLEI_EXTRA=(-tags filebrowser -c 5 -rl 25)
     elif [[ "$soft_lc" == gitlab* ]]; then
         NUCLEI_EXTRA=(-tags gitlab -c 5 -rl 25)
     elif [[ "$soft_lc" == gitea* ]]; then
         NUCLEI_EXTRA=(-tags gitea -c 5 -rl 25)
     elif [[ "$soft_lc" == gogs* ]]; then
         NUCLEI_EXTRA=(-tags gogs -c 5 -rl 25)
+    elif [[ "$soft_lc" == keycloak* ]]; then
+        NUCLEI_EXTRA=(-tags keycloak -c 5 -rl 25)
+    elif [[ "$soft_lc" == rancher* ]]; then
+        NUCLEI_EXTRA=(-tags rancher -c 5 -rl 25)
+    elif [[ "$soft_lc" == argocd* || "$soft_lc" == argo ]]; then
+        NUCLEI_EXTRA=(-tags argocd -c 5 -rl 25)
+    elif [[ "$soft_lc" == eureka* ]]; then
+        NUCLEI_EXTRA=(-tags eureka -c 5 -rl 25)
+    elif [[ "$soft_lc" == harbor* ]]; then
+        NUCLEI_EXTRA=(-tags harbor -c 5 -rl 25)
+    elif [[ "$soft_lc" == minio* ]]; then
+        NUCLEI_EXTRA=(-tags minio -c 5 -rl 25)
+    elif [[ "$soft_lc" == nexus* || "$soft_lc" == sonatype* ]]; then
+        NUCLEI_EXTRA=(-tags nexus -c 5 -rl 25)
+    elif [[ "$soft_lc" == jfrog* || "$soft_lc" == artifactory* ]]; then
+        NUCLEI_EXTRA=(-tags jfrog,artifactory -c 5 -rl 25)
+    elif [[ "$soft_lc" == strapi* ]]; then
+        NUCLEI_EXTRA=(-tags strapi -c 5 -rl 25)
+    elif [[ "$soft_lc" == pgadmin* ]]; then
+        NUCLEI_EXTRA=(-tags pgadmin -c 5 -rl 25)
+    elif [[ "$soft_lc" == uipath* ]]; then
+        NUCLEI_EXTRA=(-tags uipath -c 5 -rl 25)
+    elif [[ "$soft_lc" == dbeaver* ]]; then
+        NUCLEI_EXTRA=(-tags dbeaver -c 5 -rl 25)
     elif [[ "$soft_lc" == oracle* ]]; then
         NUCLEI_EXTRA=(-tags oracle -c 5 -rl 25)
     elif [[ "$soft_lc" == tomcat* ]]; then
         NUCLEI_EXTRA=(-tags tomcat -c 5 -rl 25)
+    elif [[ "$soft_lc" == wildfly* || "$soft_lc" == jboss* ]]; then
+        NUCLEI_EXTRA=(-tags wildfly,jboss -c 5 -rl 25)
+    elif [[ "$soft_lc" == sharepoint* ]]; then
+        NUCLEI_EXTRA=(-tags sharepoint -c 5 -rl 25)
     elif [[ "$soft_lc" == iis* || "$soft_lc" == microsoft-iis* ]]; then
         NUCLEI_EXTRA=(-tags iis -c 5 -rl 25)
     elif [[ "$soft_lc" == *asp.net* || "$soft_lc" == aspnet* ]]; then
@@ -353,6 +397,8 @@ f_nuclei_args(){
         NUCLEI_EXTRA=(-tags php -c 5 -rl 25)
     elif [[ "$soft_lc" == node* ]]; then
         NUCLEI_EXTRA=(-tags nodejs -c 5 -rl 25)
+    elif [[ "$soft_lc" == crafter* ]]; then
+        NUCLEI_EXTRA=(-tags craftercms -c 5 -rl 25)
     elif [[ "$soft_lc" == java || "$soft_lc" == java:* ]]; then
         NUCLEI_EXTRA=(-tags java -c 5 -rl 25)
     else
@@ -748,6 +794,9 @@ f_ffuf_wordlist(){
                 ;;
             tomcat)
                 rel="Web-Servers/Apache-Tomcat.txt"
+                ;;
+            wildfly|jboss)
+                rel="Web-Servers/JBoss.txt"
                 ;;
             iis|aspnet|asp.net|"microsoft asp.net")
                 rel="Web-Servers/IIS.txt"
