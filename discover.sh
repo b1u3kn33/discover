@@ -5,10 +5,9 @@
 # Extra special thanks to Grok (xAI)
 #
 # Special thanks to:
-# Jay Townsend (@jay_townsend1) - everything, conversion from Backtrack to Kali
-# Jason Ashton (@ninewires) - Penetration Testers Framework (PTF) compatibility, bug crusher, and bash ninja
-#
-# Dev modules by Yiğit ibrahim (ibrahimsql)
+# Jay Townsend (@jay_townsend1) - coding ninja
+# Yiğit ibrahim (@ibrahimsql) - dev modules
+# Jason Ashton (@ninewires) - bug crusher, and bash ninja
 #
 # Thanks to:
 # Ben Wood (@DilithiumCore) - regex master
