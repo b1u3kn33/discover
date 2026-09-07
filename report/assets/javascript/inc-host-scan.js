@@ -298,6 +298,11 @@
         return "'" + String(s || "").replace(/'/g, "'\\''") + "'";
     }
 
+    /** Drop dots so ASP.NET and aspnet compare as the same product token. */
+    function productTokenNoDots(n) {
+        return String(n || "").replace(/\./g, "");
+    }
+
     /** Nuclei pass-1 extra flags (mirrors run-host-scan.sh f_nuclei_args). */
     function nucleiPass1Extra(software) {
         var softLc = (software || "").toLowerCase().replace(/\s+/g, "");
@@ -420,7 +425,8 @@
         if (softLc.indexOf("iis") === 0 || softLc.indexOf("microsoft-iis") === 0) {
             return "-tags iis -c 5 -rl 25";
         }
-        if (softLc.indexOf("asp.net") >= 0 || softLc.indexOf("aspnet") === 0) {
+        var aspLc = productTokenNoDots(softLc);
+        if (aspLc.indexOf("aspnet") === 0 || aspLc.indexOf("microsoftasp") === 0) {
             return "-tags aspnet -c 5 -rl 25";
         }
         if (softLc.indexOf("apache") === 0) {
@@ -829,7 +835,8 @@
         if (n === "iis" || n === "microsoft-iis" || n.indexOf("microsoft-iis") === 0) {
             return "iis";
         }
-        if (n.indexOf("asp.net") >= 0 || n === "aspnet" || n.indexOf("microsoftasp") === 0) {
+        var aspN = productTokenNoDots(n);
+        if (aspN.indexOf("aspnet") === 0 || aspN.indexOf("microsoftasp") === 0) {
             return "aspnet";
         }
         if (n === "nginx" || n.indexOf("nginx") === 0) {
@@ -987,7 +994,7 @@
             found.oracle = "";
         }
         if (
-            (/\basp\.net\b/.test(blobAll) || /\baspnet\b/.test(blobAll)) &&
+            /\baspnet\b/.test(blobAll.replace(/\./g, "")) &&
             found.aspnet === undefined
         ) {
             found.aspnet = "";
