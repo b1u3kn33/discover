@@ -37,6 +37,7 @@ NOISE_PLUGINS = {
     "via-proxy",
     "x-frame-options",
     "x-powered-by",
+    "x-ua-compatible",
     "x-xss-protection",
 }
 
@@ -85,6 +86,8 @@ TECH_ALIASES = {
     "google cloud load balancing": "google cloud",
     "microsoft asp.net": "asp.net",
     "microsoft iis": "iis",
+    # Wappalyzer sometimes emits a plural next to the real product.
+    "sonarqubes": "sonarqube",
 }
 
 # Canonical display names keyed by tech_key().
@@ -102,6 +105,7 @@ TECH_DISPLAY_NAMES = {
     "microsoft httpapi": "Microsoft HTTPAPI",
     "mod jk": "mod_jk",
     "nginx": "nginx",
+    "sonarqube": "SonarQube",
 }
 
 
@@ -122,6 +126,10 @@ def technology_base_name(label):
 
 
 def is_noise_technology(label):
+    low = str(label or "").strip().lower()
+    # IE document-mode header, including X-UA-Compatible:IE=edge.
+    if low.startswith("x-ua-compatible"):
+        return True
     base = technology_base_name(label)
     if not base:
         return False
@@ -492,6 +500,43 @@ def strip_noise_technology_labels(technologies):
     return ", ".join(kept)
 
 
+# Generic Java is a runtime, not the product. Drop it when a named Java app
+# is already in the same tech list (SonarQube, Jenkins, and similar).
+JAVA_APP_TECH_KEYS = frozenset(
+    {
+        "confluence",
+        "elasticsearch",
+        "eureka",
+        "jenkins",
+        "jira",
+        "keycloak",
+        "kibana",
+        "nexus",
+        "sonarqube",
+        "tomcat",
+        "wildfly",
+    }
+)
+
+
+def strip_runtime_when_product(technologies):
+    """Drop bare Java when a more specific Java app is already listed."""
+    if not technologies:
+        return technologies
+    labels = [item.strip() for item in str(technologies).split(",") if item.strip()]
+    keys = {tech_key(item) for item in labels}
+    if "java" not in keys:
+        return ", ".join(labels)
+    blob = " ".join(keys)
+    has_app = any(
+        re.search(rf"(?<![a-z0-9]){re.escape(app)}(?![a-z0-9])", blob)
+        for app in JAVA_APP_TECH_KEYS
+    )
+    if has_app:
+        labels = [item for item in labels if tech_key(item) != "java"]
+    return ", ".join(labels)
+
+
 def strip_redundant_webserver_tokens(webserver, technologies):
     if not webserver:
         return webserver
@@ -625,6 +670,7 @@ def host_tech_row(httpx_row, whatweb_row):
     webserver = strip_redundant_webserver_tokens(webserver, technologies)
     technologies = strip_redundant_technology_labels(technologies, webserver)
     technologies = strip_noise_technology_labels(technologies)
+    technologies = strip_runtime_when_product(technologies)
 
     link_url = (httpx_row.get("url") or "").strip()
     if link_url and "://" not in link_url:
