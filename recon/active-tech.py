@@ -105,6 +105,7 @@ TECH_DISPLAY_NAMES = {
     "microsoft httpapi": "Microsoft HTTPAPI",
     "mod jk": "mod_jk",
     "nginx": "nginx",
+    "control m": "Control-M",
     "sonarqube": "SonarQube",
 }
 
@@ -505,6 +506,9 @@ def strip_noise_technology_labels(technologies):
 JAVA_APP_TECH_KEYS = frozenset(
     {
         "confluence",
+        "control m",
+        "control-m",
+        "controlm",
         "elasticsearch",
         "eureka",
         "jenkins",
@@ -519,7 +523,7 @@ JAVA_APP_TECH_KEYS = frozenset(
 )
 
 
-def strip_runtime_when_product(technologies):
+def strip_runtime_when_product(technologies, extra: str = ""):
     """Drop bare Java when a more specific Java app is already listed."""
     if not technologies:
         return technologies
@@ -527,13 +531,26 @@ def strip_runtime_when_product(technologies):
     keys = {tech_key(item) for item in labels}
     if "java" not in keys:
         return ", ".join(labels)
-    blob = " ".join(keys)
+    blob = " ".join(keys) + " " + str(extra or "").lower()
     has_app = any(
         re.search(rf"(?<![a-z0-9]){re.escape(app)}(?![a-z0-9])", blob)
         for app in JAVA_APP_TECH_KEYS
     )
     if has_app:
         labels = [item for item in labels if tech_key(item) != "java"]
+    return ", ".join(labels)
+
+
+def append_control_m_from_row(technologies, title: str = "", host: str = "") -> str:
+    """Add Control-M when title or hostname says so (httpx often only has Java)."""
+    blob = f"{title} {host} {technologies}".lower()
+    if not re.search(r"(?<![a-z0-9])control-?m(?![a-z0-9])", blob):
+        return technologies
+    labels = [item.strip() for item in str(technologies).split(",") if item.strip()]
+    keys = {tech_key(item) for item in labels}
+    if "control m" in keys or "controlm" in keys:
+        return ", ".join(labels)
+    labels.append("Control-M")
     return ", ".join(labels)
 
 
@@ -670,7 +687,12 @@ def host_tech_row(httpx_row, whatweb_row):
     webserver = strip_redundant_webserver_tokens(webserver, technologies)
     technologies = strip_redundant_technology_labels(technologies, webserver)
     technologies = strip_noise_technology_labels(technologies)
-    technologies = strip_runtime_when_product(technologies)
+    title = format_page_title(httpx_row.get("title"))
+    host = host_from_url(
+        httpx_row.get("url") or httpx_row.get("input") or httpx_row.get("host") or ""
+    )
+    technologies = append_control_m_from_row(technologies, title, host)
+    technologies = strip_runtime_when_product(technologies, extra=f"{title} {host}")
 
     link_url = (httpx_row.get("url") or "").strip()
     if link_url and "://" not in link_url:
@@ -684,7 +706,7 @@ def host_tech_row(httpx_row, whatweb_row):
         "url": link_url,
         "final_url": final_url,
         "webserver": webserver,
-        "title": format_page_title(httpx_row.get("title")),
+        "title": title,
         "technologies": technologies,
         "has_password_field": whatweb_has_password_field(whatweb_plugins),
     }
@@ -1312,6 +1334,9 @@ LOGIN_TECH_BASES = {
     "pg-admin",
     "uipath",
     "ui path",
+    "control-m",
+    "controlm",
+    "control m",
     "prometheus",
 }
 
@@ -2577,7 +2602,7 @@ def write_subdomains_active_page(report_dir: str) -> dict:
             '<script src="../tools/shodan/index.js"></script>',
             '<script src="../tools/shodan/kev-ids.js"></script>',
             '<script src="../assets/javascript/inc-shodan.js?v=19"></script>',
-            '<script src="../assets/javascript/inc-host-scan.js?v=57"></script>',
+            '<script src="../assets/javascript/inc-host-scan.js?v=58"></script>',
             "</body>",
             "</html>",
             "",

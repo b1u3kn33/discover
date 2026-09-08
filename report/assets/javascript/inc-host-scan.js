@@ -61,6 +61,7 @@
         { id: "cloudbeaver", label: "CloudBeaver" },
         { id: "dbeaver", label: "DBeaver" },
         { id: "uipath", label: "UiPath" },
+        { id: "controlm", label: "Control-M" },
         { id: "oracle", label: "Oracle" },
         { id: "tomcat", label: "Tomcat" },
         { id: "wildfly", label: "WildFly" },
@@ -812,6 +813,9 @@
         if (n === "uipath" || n.indexOf("uipath") === 0) {
             return "uipath";
         }
+        if (n === "control-m" || n === "controlm" || n.indexOf("control-m") === 0) {
+            return "controlm";
+        }
         if (n === "oracle" || n.indexOf("oracle") === 0) {
             return "oracle";
         }
@@ -1081,6 +1085,9 @@
         }
         if (/\buipath\b/.test(blobAll) && found.uipath === undefined) {
             found.uipath = "";
+        }
+        if (/\bcontrol-?m\b/.test(blobAll) && found.controlm === undefined) {
+            found.controlm = "";
         }
         if (
             (/\bwildfly\b/.test(blobAll) || /\bjboss\b/.test(blobAll)) &&
