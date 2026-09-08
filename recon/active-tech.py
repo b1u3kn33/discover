@@ -1257,6 +1257,11 @@ LOGIN_TECH_BASES = {
     "artifactory",
     "portainer",
     "rancher",
+    "argocd",
+    "argo cd",
+    "argo-cd",
+    "harbor",
+    "minio",
     "prometheus",
 }
 
@@ -1326,11 +1331,22 @@ def is_login_title(title: str) -> bool:
     return bool(LOGIN_TITLE_RE.search(t))
 
 
-def is_login_tech(technologies: str) -> bool:
-    """True when technologies include a product that typically has a login UI."""
-    if not technologies:
+def is_login_tech(technologies: str, title: str = "", host: str = "") -> bool:
+    """True when fingerprint includes a product that typically has a login UI.
+
+    httpx tech tokens, page title, and hostname all count. SPA consoles
+    (Argo CD, Harbor, MinIO, Rancher) often only show HSTS in tech.
+    """
+    chunks: list[str] = []
+    if technologies:
+        chunks.extend(str(technologies).split(","))
+    if title:
+        chunks.append(str(title))
+    if host:
+        chunks.append(str(host))
+    if not chunks:
         return False
-    for item in str(technologies).split(","):
+    for item in chunks:
         item = item.strip()
         if not item:
             continue
@@ -1340,10 +1356,11 @@ def is_login_tech(technologies: str) -> bool:
         if key in LOGIN_TECH_BASES:
             return True
         # CMS aliases share the same idea
-        compact = key.replace(" ", "")
+        compact = key.replace(" ", "").replace("-", "")
         if compact in CMS_ALIASES:
             return True
         # httpx often emits "Atlassian Jira" / "Atlassian Confluence", not "Jira".
+        # Title "Argo CD" / hostname argocd.example also count.
         for base in LOGIN_TECH_BASES:
             if re.search(rf"(?<![a-z0-9]){re.escape(base)}(?![a-z0-9])", key):
                 return True
@@ -1424,7 +1441,7 @@ def host_login_types(
     form = False
     if host_has_login_path(host_key, tech, path_hosts):
         form = True
-    if is_login_tech(technologies):
+    if is_login_tech(technologies, title=title, host=host):
         form = True
     if tech.get("has_password_field"):
         form = True
@@ -1755,7 +1772,7 @@ def host_login_signals(
         signals.add("title")
 
     technologies = tech.get("technologies") or ""
-    if is_login_tech(technologies):
+    if is_login_tech(technologies, title=title, host=host_key):
         signals.add("tech")
 
     if is_login_status(tech.get("status"), tech):
