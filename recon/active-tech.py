@@ -1262,6 +1262,10 @@ LOGIN_TECH_BASES = {
     "argo-cd",
     "harbor",
     "minio",
+    "pgadmin",
+    "pg-admin",
+    "uipath",
+    "ui path",
     "prometheus",
 }
 
@@ -1335,7 +1339,7 @@ def is_login_tech(technologies: str, title: str = "", host: str = "") -> bool:
     """True when fingerprint includes a product that typically has a login UI.
 
     httpx tech tokens, page title, and hostname all count. SPA consoles
-    (Argo CD, Harbor, MinIO, Rancher) often only show HSTS in tech.
+    (Argo CD, Harbor, MinIO, Rancher, UiPath, pgAdmin) often only show HSTS in tech.
     """
     chunks: list[str] = []
     if technologies:
