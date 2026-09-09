@@ -21,13 +21,18 @@ NOISE_PLUGINS = {
     "email",
     "emailfield",
     "hiddenfield",
+    "hsts",
     "html5",
+    "http/3",
     "httponly",
     "httpserver",
     "ip",
+    "index-of",
     # HTML meta generator is marketing / multi-product blob noise, not a stack product.
     "metagenerator",
+    "object",
     "passwordfield",
+    "poweredby",
     "redirectlocation",
     "script",
     "strict-transport-security",
@@ -40,6 +45,9 @@ NOISE_PLUGINS = {
     "x-ua-compatible",
     "x-xss-protection",
 }
+
+# HTTP challenge schemes (httpx Wappalyzer "Basic" and WhatWeb WWW-Authenticate module).
+HTTP_AUTH_TECH = frozenset({"basic", "digest", "ntlm", "negotiate"})
 
 # Optional nav pages: keep the <li> only when pages/<file> exists.
 _OPTIONAL_NAV_PAGES = (
@@ -92,12 +100,14 @@ TECH_ALIASES = {
 
 # Canonical display names keyed by tech_key().
 TECH_DISPLAY_NAMES = {
+    "amazon alb": "Amazon ALB",
     "amazon cloudfront": "Amazon CloudFront",
     "apache": "Apache",
     "asp.net": "Microsoft ASP.NET",
     "f5 bigip": "F5 BigIP",
     "google analytics": "Google Analytics",
     "google cloud": "Google Cloud",
+    "azure front door": "Azure Front Door",
     "iis": "IIS",
     "jquery": "jQuery",
     "jquery migrate": "jQuery Migrate",
@@ -148,6 +158,10 @@ def host_from_url(url):
     return (urlparse(url).hostname or "").lower()
 
 
+# WhatWeb PoweredBy/Title scrapes often emit English articles as "string" hits.
+PLUGIN_STRING_STOPWORDS = frozenset({"a", "an", "and", "for", "of", "on", "or", "the", "to"})
+
+
 def plugin_label(name, data):
     if not isinstance(data, dict):
         return name
@@ -163,6 +177,11 @@ def plugin_label(name, data):
             values.append(str(raw))
 
     values = [value for value in values if str(value).strip().upper() != "N/A"]
+    values = [
+        value
+        for value in values
+        if str(value).strip().lower() not in PLUGIN_STRING_STOPWORDS
+    ]
     # Tech lists are comma-separated — never embed raw commas from WhatWeb strings
     # (MetaGenerator marketing copy was splitting into fake "products").
     values = [re.sub(r"\s*,\s*", " · ", str(value).strip()) for value in values]
@@ -228,9 +247,28 @@ def whatweb_plugin_labels(plugins):
 
     labels = []
     for name in sorted(plugins.keys(), key=lambda value: str(value).lower()):
-        if str(name).lower() in NOISE_PLUGINS:
+        name_l = str(name).lower()
+        if name_l in NOISE_PLUGINS:
             continue
-        labels.append(plugin_label(str(name), plugins[name]))
+        data = plugins[name]
+        # WWW-Authenticate module is the scheme (Basic). httpx already emits
+        # that as its own tech token — do not also glue it onto the realm.
+        if name_l.replace("_", "-") == "www-authenticate" and isinstance(data, dict):
+            data = dict(data)
+            modules = data.pop("module", None)
+            labels.append(plugin_label(str(name), data))
+            if isinstance(modules, list):
+                extra = modules
+            elif modules:
+                extra = [modules]
+            else:
+                extra = []
+            for item in extra:
+                scheme = str(item).strip()
+                if scheme.lower() in HTTP_AUTH_TECH:
+                    labels.append(scheme)
+            continue
+        labels.append(plugin_label(str(name), data))
     return labels
 
 
@@ -348,9 +386,11 @@ def load_httpx_rows(path):
 SUPPRESSED_PAGE_TITLES = {
     "301 moved permanently",
     "302 found",
+    "401 authorization required",
     "401 unauthorized",
     "403 - forbidden: access is denied.",
     "403 forbidden",
+    "access denied",
     "404 not found",
     "404 page not found",
     "404 - file or directory not found.",
@@ -364,19 +404,35 @@ SUPPRESSED_PAGE_TITLES = {
     "error 404",
     "error: the request could not be satisfied",
     "error",
+    "document moved",
+    "home page",
+    "homepage",
     "invalid url",
+    "it works",
+    "it works!",
+    "it works! apache httpd",
     "http status 404 - not found",
+    "loading...",
     "not found",
     "object moved",
     "page not found",
     "redirect",
+    "redirecting...",
+    "redirecting to single sign-on server for authentication",
     "server unavailable",
+    "service unavailable",
+    "web app - unavailable",
 }
 
 
 def normalize_page_title_key(title):
-    # Treat en/em dashes like ASCII hyphens for suppress matching.
-    return title.replace("\u2013", "-").replace("\u2014", "-").casefold()
+    # Treat en/em dashes like ASCII hyphens; Unicode ellipsis like "...".
+    return (
+        title.replace("\u2013", "-")
+        .replace("\u2014", "-")
+        .replace("\u2026", "...")
+        .casefold()
+    )
 
 
 def format_page_title(value):
@@ -413,6 +469,9 @@ def trim_version(version):
 def format_webserver(value):
     value = (value or "").strip()
     if not value or value.upper() == "N/A":
+        return ""
+    # Citrix/NetScaler often spoofs Server: Fake Name
+    if value.casefold() == "fake name":
         return ""
 
     match = re.match(r"^Microsoft-IIS(?:/(.+))?$", value, re.IGNORECASE)
@@ -546,6 +605,46 @@ def strip_runtime_when_product(technologies, extra: str = ""):
     return ", ".join(labels)
 
 
+def strip_generic_when_specific(technologies):
+    """Drop a cloud parent when a more specific product is already listed.
+
+    Azure + Azure Front Door → Azure Front Door.
+    Amazon ALB + Amazon Web Services → Amazon ALB (same for S3 / CloudFront).
+    jQuery + jQuery Migrate / jQuery UI → keep the specific plugins only.
+    """
+    if not technologies:
+        return technologies
+    labels = [item.strip() for item in str(technologies).split(",") if item.strip()]
+    keys = [tech_key(item) for item in labels]
+    keyset = set(keys)
+    drop = set()
+    if "azure" in keyset and any(
+        k != "azure" and re.search(r"(?<![a-z0-9])azure(?![a-z0-9])", k)
+        for k in keyset
+    ):
+        drop.add("azure")
+    if "amazon web services" in keyset and any(
+        k != "amazon web services"
+        and re.search(r"(?<![a-z0-9])amazon(?![a-z0-9])", k)
+        for k in keyset
+    ):
+        drop.add("amazon web services")
+    drop_bare_jquery = "jquery" in keyset and any(
+        k != "jquery" and re.search(r"(?<![a-z0-9])jquery(?![a-z0-9])", k)
+        for k in keyset
+    )
+    if not drop and not drop_bare_jquery:
+        return ", ".join(labels)
+    kept = []
+    for item, key in zip(labels, keys):
+        if key in drop:
+            continue
+        if drop_bare_jquery and key == "jquery" and not has_version_suffix(item):
+            continue
+        kept.append(item)
+    return ", ".join(kept)
+
+
 def append_control_m_from_row(technologies, title: str = "", host: str = "") -> str:
     """Add Control-M when title or hostname says so (httpx often only has Java)."""
     blob = f"{title} {host} {technologies}".lower()
@@ -672,7 +771,7 @@ def merge_technologies(httpx_tech, whatweb_plugins):
         (format_technology_label(value) for value in merged.values()),
         key=lambda value: value.lower(),
     )
-    return ", ".join(labels)
+    return strip_generic_when_specific(", ".join(labels))
 
 
 def host_tech_row(httpx_row, whatweb_row):
@@ -1217,8 +1316,6 @@ LOGIN_TYPE_LABELS = {
     "basic": "Basic",
     "form": "Form",
 }
-# HTTP challenge auth (browser popup), from httpx tech tokens.
-HTTP_AUTH_TECH = frozenset({"basic", "digest", "ntlm", "negotiate"})
 # Generic 401 page titles — not HTML form evidence when HTTP-challenge is present.
 LOGIN_HTTP_AUTH_TITLE_RE = re.compile(
     r"(?i)\b(?:401\s+)?(?:authorization\s+required|unauthori[sz]ed)\b"
